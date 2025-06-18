@@ -87,11 +87,15 @@ export default function CreateTradeAd() {
     queryKey: ["/api/trading-items"],
   });
 
-  // Filter items based on search
-  const filteredItems = tradingItems.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.type.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter and sort items based on search
+  const filteredItems = tradingItems
+    .filter(item =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.type.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+
 
   // Create trade ad mutation
   const createTradeAdMutation = useMutation({
