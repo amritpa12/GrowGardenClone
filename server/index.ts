@@ -175,11 +175,6 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Add root route for health checks BEFORE any other middleware
-  app.get('/', (req, res) => {
-    res.status(200).send('OK');
-  });
-
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -202,13 +197,16 @@ app.use((req, res, next) => {
   });
 
   const isProduction = app.get("env") === "production";
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
+  
+  if (isProduction) {
+    // In production, add health check endpoint before static files
+    app.get('/', (req, res) => {
+      res.status(200).send('OK');
+    });
     serveStatic(app);
+  } else {
+    // In development, let Vite handle the root route
+    await setupVite(app, server);
   }
 
   // ALWAYS serve the app on port 5000
