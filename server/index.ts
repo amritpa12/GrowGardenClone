@@ -175,6 +175,16 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Add root route for health checks BEFORE any other middleware
+  app.get('/', (req, res) => {
+    res.status(200).json({ 
+      status: 'ok', 
+      message: 'Roblox Trading Platform API is running',
+      timestamp: new Date().toISOString(),
+      environment: app.get("env")
+    });
+  });
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -196,7 +206,6 @@ app.use((req, res, next) => {
     }
   });
 
-
   const isProduction = app.get("env") === "production";
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
@@ -206,16 +215,6 @@ app.use((req, res, next) => {
   } else {
     serveStatic(app);
   }
-
-  // Add root route for health checks
-  app.get('/', (req, res) => {
-    res.status(200).json({ 
-      status: 'ok', 
-      message: 'Roblox Trading Platform API is running',
-      timestamp: new Date().toISOString(),
-      environment: app.get("env")
-    });
-  });
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
