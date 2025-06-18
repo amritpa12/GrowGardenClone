@@ -123,6 +123,7 @@ This is a comprehensive Roblox trading platform for the "Grow a Garden" game fea
 
 ```
 Changelog:
+- June 18, 2025. Updated MongoDB with 122 authentic item images from Excel spreadsheet - resolved inconsistent image loading in item picker
 - June 18, 2025. Fixed Roblox OAuth 404 error by updating authorization endpoint to correct API URL
 - June 18, 2025. Fixed item picker display issues by removing broken external image URLs and implementing proper category-based fallback icons
 - June 18, 2025. Fixed broken item images in trade ads - updated external URLs and confirmed MongoDB image storage is working properly
