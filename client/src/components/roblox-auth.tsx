@@ -159,7 +159,7 @@ export function RobloxAuth() {
     // Get current URL for redirect
     const currentUrl = window.location.origin + window.location.pathname;
     
-    const authUrl = `https://authorize.roblox.com/v1/authorize?` +
+    const authUrl = `https://apis.roblox.com/oauth/v1/authorize?` +
       `client_id=${clientId}&` +
       `redirect_uri=${encodeURIComponent(currentUrl)}&` +
       `scope=openid profile&` +
