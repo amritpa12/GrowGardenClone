@@ -1,35 +1,16 @@
-import fs from 'fs';
-import path from 'path';
-
-// Map item names to Roblox asset IDs or local images
+// Map item names to external image URLs or category icons
 export const itemImageMap: Record<string, string> = {
-  // Crops
-  'Carrot': 'https://tr.rbxcdn.com/30DAY-AvatarHeadshot-C1D3E5E7D18A6D5E8F1C2A0B9C8D7E6F5A4B3C2D1E0F-Png/352/352/AvatarHeadshot/Png/noFilter',
-  'Corn': '/assets/items/corn.png',
-  'Tomato': '/assets/items/tomato.png',
-  'Wheat': '/assets/items/wheat.png',
-  'Potato': '/assets/items/potato.png',
-  'Rice': '/assets/items/rice.png',
-  'Strawberry': '/assets/items/strawberry.png',
-  'Blueberry': '/assets/items/blueberry.png',
-  'Apple': '/assets/items/apple.png',
-  'Orange': '/assets/items/orange.png',
-  
-  // Pets - using category icons for now
-  'Dog': '/assets/icons/pet.svg',
-  'Cat': '/assets/icons/pet.svg',
-  'Rabbit': '/assets/icons/pet.svg',
-  'Horse': '/assets/icons/pet.svg',
-  'Cow': '/assets/icons/pet.svg',
-  'Pig': '/assets/icons/pet.svg',
-  'Chicken': '/assets/icons/pet.svg',
-  'Sheep': '/assets/icons/pet.svg',
-  
-  // Items
-  'Watering Can': '/assets/icons/tool.svg',
-  'Fertilizer': '/assets/icons/package.svg',
-  'Seeds': '/assets/icons/package.svg',
-  'Harvest Tool': '/assets/icons/tool.svg'
+  // Using PostImg and external CDNs for all images
+  'Carrot': 'https://i.postimg.cc/q7QKGJFw/carrot.png',
+  'Corn': 'https://i.postimg.cc/XJKcHjMN/corn.png', 
+  'Tomato': 'https://i.postimg.cc/FFhfN8gK/tomato.png',
+  'Wheat': 'https://i.postimg.cc/jSkJKnHv/wheat.png',
+  'Potato': 'https://i.postimg.cc/4yLPf3vL/potato.png',
+  'Rice': 'https://i.postimg.cc/GtBfx8pH/rice.png',
+  'Strawberry': 'https://i.postimg.cc/wTMp4jyb/strawberry.png',
+  'Blueberry': 'https://i.postimg.cc/1tzMJjNm/blueberry.png',
+  'Apple': 'https://i.postimg.cc/yYp5K7Mb/apple.png',
+  'Orange': 'https://i.postimg.cc/cHJBkKnh/orange.png'
 };
 
 export function getItemImageUrl(itemName: string, itemType: string): string {

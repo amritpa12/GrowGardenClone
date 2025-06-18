@@ -61,14 +61,14 @@ export default function Admin() {
                 <CardContent>
                   <div className="space-y-4">
                     <p className="text-gray-400">
-                      Platform is connected to MongoDB Atlas cloud database with 136 authentic trading items.
+                      Platform uses PostgreSQL database with external image storage for fast performance.
                     </p>
                     <div className="bg-black/30 rounded-lg p-4 border border-gray-700/50">
                       <ul className="space-y-2 text-sm">
-                        <li className="text-white"><strong>Database:</strong> MongoDB Atlas (Cloud)</li>
-                        <li className="text-white"><strong>Items:</strong> 136 authentic Roblox trading items</li>
+                        <li className="text-white"><strong>Database:</strong> PostgreSQL (Primary)</li>
+                        <li className="text-white"><strong>Items:</strong> Trading items with external images</li>
                         <li className="text-white"><strong>Authentication:</strong> Roblox OAuth integration</li>
-                        <li className="text-white"><strong>Images:</strong> GridFS storage with proxy server</li>
+                        <li className="text-white"><strong>Images:</strong> External CDN with proxy service</li>
                       </ul>
                     </div>
                   </div>

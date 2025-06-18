@@ -3,7 +3,6 @@ import { createServer, type Server } from "http";
 import { mongoStorage } from "./mongodb-storage";
 import { storage as memStorage } from "./storage";
 import { databaseStorage } from "./database-storage";
-import { initializeGridFS, getImageUrl, uploadItemImages } from "./image-storage";
 import { getItemImageUrl } from "./image-service";
 import { google } from 'googleapis';
 import fs from 'fs';
@@ -20,22 +19,6 @@ async function initializeStorage() {
     isUsingMongo = true;
 
     // Initialize GridFS for image storage with better error handling
-    setTimeout(async () => {
-      try {
-        initializeGridFS();
-        console.log('✅ GridFS initialized for image storage');
-      } catch (error) {
-        console.log('⚠️  GridFS initialization failed, will retry in 5 seconds...');
-        setTimeout(() => {
-          try {
-            initializeGridFS();
-            console.log('✅ GridFS initialized for image storage');
-          } catch (retryError) {
-            console.log('GridFS initialization failed after retry, continuing without image storage');
-          }
-        }, 5000);
-      }
-    }, 2000);
   } catch (error) {
     console.log('⚠️  MongoDB Atlas connection failed - using local memory storage');
     console.log('   Error:', error.message);
@@ -300,24 +283,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Image proxy route to handle CORS issues with PostImg
   app.get("/api/image-proxy", proxyImage);
-
-  // GridFS image serving endpoint
-  app.get('/api/images/:imageId', async (req, res) => {
-    try {
-      const { imageId } = req.params;
-      const imageBuffer = await getImageUrl(imageId);
-
-      res.set({
-        'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=86400',
-        'Access-Control-Allow-Origin': '*'
-      });
-
-      res.send(imageBuffer);
-    } catch (error) {
-      res.status(404).json({ message: "Image not found" });
-    }
-  });
 
   // Chat Messages API
   app.get("/api/chat-messages/:tradeAdId", async (req, res) => {
