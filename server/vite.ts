@@ -67,50 +67,42 @@ export async function setupVite(app: Express, server: Server) {
   });
 }
 
+import { fileURLToPath } from 'url';
+
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  const distPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../dist/public");
 
   if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
-    );
+    console.warn(`Build directory not found: ${distPath}. Serving without static files.`);
+    return;
   }
 
-  // Serve static files with caching headers (handled by main caching middleware)
+  // Serve static assets
   app.use(express.static(distPath, {
-    etag: true, // Enable built-in ETag generation
-    lastModified: true, // Enable Last-Modified headers
-    setHeaders: (res, filePath) => {
-      // Get file stats for better ETag generation
-      try {
-        const stats = fs.statSync(filePath);
-        const etag = `"${stats.mtime.getTime()}-${stats.size}"`;
-        res.set('ETag', etag);
-        res.set('Last-Modified', stats.mtime.toUTCString());
-      } catch (err) {
-        // Fallback if file stats fail
-        res.set('ETag', `"${Date.now()}"`);
-      }
-      
-      // Specific headers for different file types (main caching middleware handles this too)
-      if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
-        res.set('Cache-Control', 'public, max-age=31536000, immutable');
-      } else if (filePath.endsWith('.html')) {
-        res.set('Cache-Control', 'public, max-age=300, must-revalidate');
-      } else if (filePath.match(/\.(png|jpg|jpeg|gif|svg|ico|webp|avif)$/)) {
-        res.set('Cache-Control', 'public, max-age=86400'); // 1 day for images
-      }
-    }
+    maxAge: '1d',
+    etag: true,
+    lastModified: true
   }));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+  // SPA fallback - catch all non-API routes and serve index.html
+  app.get('*', (req, res, next) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
+
     // Set caching headers for the main HTML file
     res.set({
       'Cache-Control': 'public, max-age=300, must-revalidate',
       'ETag': `"${Date.now()}"`,
       'Last-Modified': new Date().toUTCString()
     });
-    res.sendFile(path.resolve(distPath, "index.html"));
+
+    const indexPath = path.resolve(distPath, "index.html");
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).send('Application not built. Run npm run build first.');
+    }
   });
 }

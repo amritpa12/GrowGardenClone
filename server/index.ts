@@ -207,6 +207,16 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
+  // Add root route for health checks
+  app.get('/', (req, res) => {
+    res.status(200).json({ 
+      status: 'ok', 
+      message: 'Roblox Trading Platform API is running',
+      timestamp: new Date().toISOString(),
+      environment: app.get("env")
+    });
+  });
+
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
