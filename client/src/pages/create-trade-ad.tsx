@@ -613,34 +613,29 @@ export default function CreateTradeAd() {
                             alt={item.name}
                             className="w-full h-full object-cover rounded-lg"
                             loading="lazy"
-                            onLoad={() => {
-                              console.log(`✅ Image loaded: ${item.name}`);
-                            }}
                             onError={(e) => {
-                              console.log(`❌ Image failed to load: ${item.name}`);
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
                               const parent = target.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `
-                                  <div class="w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                                    ${item.type === 'Crop' ? 
-                                      '<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 9.5V11.5L21 9ZM3 15V17L9 14.5V12.5L3 15ZM10 15C10 16.1 10.9 17 12 17S14 16.1 14 15H10Z"/></svg>' :
-                                      item.type === 'Pet' ?
-                                      '<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M5 16L3 16L5.5 20.5L6.5 19.5L8 21L9 20L7.5 18.5L9 17L8 16L6.5 17.5L5 16ZM12 14L14 17L17 14L14 11L12 14ZM19 16L18 17L19.5 18.5L18 20L19 21L20.5 19.5L22 20.5L21 16L19 16Z"/></svg>' :
-                                      '<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7V17L12 22L22 17V7L12 2Z"/></svg>'
-                                    }
-                                  </div>
-                                `;
+                              if (parent && !parent.querySelector('.fallback-icon')) {
+                                const fallbackDiv = document.createElement('div');
+                                fallbackDiv.className = 'fallback-icon w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center';
+                                const iconHtml = item.type === 'Pets' || item.type === 'Pet' ? 
+                                  '<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l3.707 3.707A1 1 0 0018 18V8a1 1 0 00-.293-.707z"/></svg>' :
+                                  item.type === 'Crop' ?
+                                  '<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M6 2a1 1 0 000 2c2.45 0 4.45 1.69 4.9 4h-1.4A1 1 0 008 9v6a1 1 0 001 1h2a1 1 0 001-1V9a1 1 0 00-1-1h-1.4c-.45-2.31-2.45-4-4.9-4z"/></svg>' :
+                                  '<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/></svg>';
+                                fallbackDiv.innerHTML = iconHtml;
+                                parent.appendChild(fallbackDiv);
                               }
                             }}
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                            {item.type === 'Crop' ? (
-                              <Sprout className="w-6 h-6 text-white" />
-                            ) : item.type === 'Pet' ? (
+                            {item.type === 'Pets' || item.type === 'Pet' ? (
                               <Crown className="w-6 h-6 text-white" />
+                            ) : item.type === 'Crop' ? (
+                              <Sprout className="w-6 h-6 text-white" />
                             ) : (
                               <Package className="w-6 h-6 text-white" />
                             )}
