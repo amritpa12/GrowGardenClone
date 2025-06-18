@@ -44,12 +44,21 @@ async function initializeStorage() {
   }
 }
 
-// Initialize storage on startup
-initializeStorage();
+// Initialize storage on startup (non-blocking)
+initializeStorage().catch(console.error);
 import { insertTradingItemSchema, insertTradeAdSchema, insertChatMessageSchema } from "@shared/schema";
 import { proxyImage } from './image-proxy';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint - fast response without database calls
+  app.get('/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'healthy',
+      timestamp: Date.now(),
+      uptime: process.uptime()
+    });
+  });
+
   // Comprehensive OAuth diagnostic endpoint
   app.get('/api/oauth-diagnostic', async (req, res) => {
     try {

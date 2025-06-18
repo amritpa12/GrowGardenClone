@@ -177,12 +177,7 @@ app.use((req, res, next) => {
 (async () => {
   // Add root route for health checks BEFORE any other middleware
   app.get('/', (req, res) => {
-    res.status(200).json({ 
-      status: 'ok', 
-      message: 'Roblox Trading Platform API is running',
-      timestamp: new Date().toISOString(),
-      environment: app.get("env")
-    });
+    res.status(200).send('OK');
   });
 
   const server = await registerRoutes(app);
