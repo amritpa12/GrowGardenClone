@@ -1,4 +1,4 @@
-import { connectToDatabase, TradingItem, User, TradeAd } from './database.js';
+import { connectToDatabase, TradingItem, User, TradeAd } from './database';
 import type { IStorage } from './storage.js';
 import type { 
   User as UserType, 

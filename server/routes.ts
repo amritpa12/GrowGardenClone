@@ -18,7 +18,7 @@ async function initializeStorage() {
     console.log('✅ MongoDB Atlas connected successfully - using cloud database');
     storage = mongoStorage;
     isUsingMongo = true;
-    
+
     // Initialize GridFS for image storage with better error handling
     setTimeout(async () => {
       try {
@@ -55,7 +55,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientId = process.env.ROBLOX_CLIENT_ID;
       const clientSecret = process.env.ROBLOX_CLIENT_SECRET;
-      
+
       const results: any = {
         timestamp: new Date().toISOString(),
         credentials: {
@@ -73,7 +73,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Test 1: Authorization endpoint
       const authUrl = `https://apis.roblox.com/oauth/v1/authorize?client_id=${clientId}&response_type=code&redirect_uri=http://localhost:5000/auth/callback&scope=openid+profile&state=test`;
-      
+
       try {
         const authResponse = await fetch(authUrl, { method: 'HEAD' });
         results.tests.authorization = {
@@ -84,12 +84,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           working: authResponse.status === 200
         };
       } catch (error) {
-        results.tests.authorization = { error: error instanceof Error ? error.message : String(error) };or) };
+        results.tests.authorization = { error: error instanceof Error ? error.message : String(error) };
       }
 
       // Test 2: Try different scope format
       const authUrl2 = `https://apis.roblox.com/oauth/v1/authorize?client_id=${clientId}&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fauth%2Fcallback&scope=openid%20profile&state=test`;
-      
+
       try {
         const authResponse2 = await fetch(authUrl2, { method: 'HEAD' });
         results.tests.authorizationEncoded = {
@@ -107,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: 'grant_type=authorization_code'
         });
-        
+
         results.tests.tokenEndpoint = {
           status: tokenResponse.status,
           statusText: tokenResponse.statusText,
@@ -188,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get user info from request headers (since we're using localStorage auth)
       const userDataHeader = req.headers['x-user-data'] as string;
-      
+
       if (!userDataHeader) {
         return res.status(401).json({ error: "User not authenticated" });
       }
@@ -205,9 +205,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         userId: userData.id.toString() // Ensure userId comes from authenticated user
       });
-      
+
       console.log('Creating trade ad for user:', userData.username, 'with ID:', userData.id);
-      
+
       const ad = await databaseStorage.createTradeAd(validatedData);
       res.status(201).json(ad);
     } catch (error) {
@@ -225,7 +225,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // For now, get user info from localStorage simulation via header
       const userDataHeader = req.headers['x-user-data'] as string;
-      
+
       if (!userDataHeader) {
         return res.status(401).json({ error: "User not authenticated" });
       }
@@ -243,7 +243,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ad.userId === userData.id?.toString() || 
         ad.userId === userData.username
       );
-      
+
       res.json(userTradeAds);
     } catch (error) {
       console.error("Error fetching user trade ads:", error);
@@ -281,7 +281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update status to cancelled instead of hard delete
       await storage.updateTradeAdStatus(adId, 'cancelled');
-      
+
       res.json({ message: "Trade ad deleted successfully" });
     } catch (error) {
       console.error("Error deleting trade ad:", error);
@@ -337,13 +337,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/roblox/callback", async (req, res) => {
     try {
       const { code, state } = req.body;
-      
+
       console.log('=== OAuth Callback Received ===');
       console.log('Request body keys:', Object.keys(req.body));
       console.log('Code present:', !!code);
       console.log('State present:', !!state);
       console.log('===============================');
-      
+
       if (!code) {
         return res.status(400).json({ error: "Authorization code required" });
       }
@@ -396,7 +396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           redirectUri: redirectUri,
           timestamp: new Date().toISOString()
         });
-        
+
         // Try to parse JSON error response
         let errorDetails;
         try {
@@ -406,7 +406,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('Raw error text:', errorText);
           errorDetails = { error: errorText };
         }
-        
+
         // Handle specific OAuth errors
         if (errorText.includes('authorization_expired') || errorText.includes('invalid_grant') || 
             errorText.includes('expired') || tokenResponse.status === 400) {
@@ -416,7 +416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             details: errorDetails
           });
         }
-        
+
         return res.status(400).json({ 
           error: "Failed to exchange authorization code",
           message: "Token exchange failed with Roblox servers",
@@ -426,7 +426,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const tokenData = await tokenResponse.json();
-      
+
       // Get user info using access token
       const userResponse = await fetch('https://apis.roblox.com/oauth/v1/userinfo', {
         headers: {
@@ -440,10 +440,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const userData = await userResponse.json();
-      
+
       // Get profile picture from Roblox API
       let profileImageUrl = `https://ui-avatars.com/api/?name=${userData.preferred_username}&background=8b5cf6&color=fff&size=150`;
-      
+
       try {
         const avatarResponse = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userData.sub}&size=150x150&format=Png&isCircular=false`);
         if (avatarResponse.ok) {
@@ -470,7 +470,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store user in PostgreSQL using upsert (insert or update)
       try {
         console.log('Storing user in PostgreSQL:', robloxUser.username);
-        
+
         // Store in PostgreSQL database
         await databaseStorage.upsertUser({
           id: userData.sub, // Roblox user ID as string
@@ -480,7 +480,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lastName: null,
           profileImageUrl: profileImageUrl
         });
-        
+
         console.log('User stored successfully in PostgreSQL');
       } catch (dbError) {
         console.log('Database error storing user:', dbError);
@@ -498,18 +498,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.params.userId;
       console.log('Testing avatar fetch for user:', userId);
-      
+
       const avatarResponse = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`);
       console.log('Roblox API response status:', avatarResponse.status);
-      
+
       if (avatarResponse.ok) {
         const avatarData = await avatarResponse.json();
         console.log('Avatar data received:', avatarData);
-        
+
         if (avatarData.data && avatarData.data[0] && avatarData.data[0].imageUrl) {
           const imageUrl = avatarData.data[0].imageUrl;
           const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(imageUrl)}`;
-          
+
           res.json({
             success: true,
             originalUrl: imageUrl,
@@ -538,7 +538,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/debug/oauth", async (req, res) => {
     const clientId = process.env.ROBLOX_CLIENT_ID;
     const clientSecret = process.env.ROBLOX_CLIENT_SECRET;
-    
+
     res.json({
       hasClientId: !!clientId,
       hasClientSecret: !!clientSecret,
@@ -555,7 +555,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         storage.getAllTradingItems(),
         storage.getAllTradeAds()
       ]);
-      
+
       res.json({
         tradingItems: {
           count: tradingItems.length,
@@ -592,40 +592,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const VAL_SHEET_ID = process.env.VAL_SHEET_ID;
       const serviceAccountKeyPath = process.env.GSERVICE_ACCOUNT_KEY;
-      
+
       console.log('Debug - VAL_SHEET_ID:', VAL_SHEET_ID);
       console.log('Debug - serviceAccountKeyPath:', serviceAccountKeyPath);
-      
+
       if (!VAL_SHEET_ID) {
         throw new Error('VAL_SHEET_ID environment variable not set');
       }
-      
+
       if (!serviceAccountKeyPath || !fs.existsSync(serviceAccountKeyPath)) {
         throw new Error('Google service account key not found');
       }
 
       // Initialize Google Sheets client
       const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountKeyPath, 'utf8'));
-      
+
       const auth = new google.auth.GoogleAuth({
         credentials: serviceAccount,
         scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
       });
 
       const sheets = google.sheets({ version: 'v4', auth });
-      
+
       const range = 'A:N'; // Columns A through N to get all data
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId: VAL_SHEET_ID,
         range: range,
       });
-      
+
       const rows = response.data.values || [];
-      
+
       if (rows.length === 0) {
         return res.json([]);
       }
-      
+
       // Skip header row and map data to objects
       const headers = rows[0];
       const valueListItems = rows.slice(1).map((row: any[], index: number) => {
@@ -633,14 +633,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         headers.forEach((header: string, i: number) => {
           const key = header.toLowerCase().replace(/\s+/g, '');
           let value = row[i] || '';
-          
+
           // Convert specific fields to appropriate types
           if (key === 'age' || key === 'position' || key === 'itemid') {
             value = parseInt(value) || 0;
           } else if (key === 'updatetime') {
             value = parseInt(value) || Date.now() / 1000;
           }
-          
+
           // Map column names to camelCase
           const mappedKey = {
             'category': 'category',
@@ -659,13 +659,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             'itemid': 'itemId',
             'position': 'position'
           }[key] || key;
-          
+
           item[mappedKey] = value;
         });
-        
+
         return item;
       });
-      
+
       res.json(valueListItems);
     } catch (error) {
       console.error('Failed to fetch value list data:', error);
