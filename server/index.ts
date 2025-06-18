@@ -199,7 +199,7 @@ app.use((req, res, next) => {
   const isProduction = app.get("env") === "production";
   
   if (isProduction) {
-    // In production, add health check endpoint before static files
+    // In production, add fast health check endpoint before static files
     app.get('/', (req, res) => {
       res.status(200).send('OK');
     });
