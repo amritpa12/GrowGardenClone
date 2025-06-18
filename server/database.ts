@@ -23,9 +23,7 @@ export async function connectToDatabase() {
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
       family: 4,
-      retryWrites: true,
-      bufferCommands: false,
-      bufferMaxEntries: 0
+      retryWrites: true
     });
     console.log('Connected to MongoDB');
   } catch (error) {
