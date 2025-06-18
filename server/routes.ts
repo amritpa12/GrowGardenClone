@@ -76,7 +76,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         const authResponse = await fetch(authUrl, { method: 'HEAD' });
-        results.tests.authorization = {
+        (results.tests as any).authorization = {
           url: authUrl,
           status: authResponse.status,
           statusText: authResponse.statusText,
@@ -84,7 +84,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           working: authResponse.status === 200
         };
       } catch (error) {
-        results.tests.authorization = { error: error instanceof Error ? error.message : String(error) };
+        (results.tests as any).authorization = { error: (error as Error).message };
       }
 
       // Test 2: Try different scope format
@@ -92,12 +92,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         const authResponse2 = await fetch(authUrl2, { method: 'HEAD' });
-        results.tests.authorizationEncoded = {
+        (results.tests as any).authorizationEncoded = {
           status: authResponse2.status,
           working: authResponse2.status === 200
         };
       } catch (error) {
-        results.tests.authorizationEncoded = { error: error instanceof Error ? error.message : String(error) };
+        (results.tests as any).authorizationEncoded = { error: (error as Error).message };
       }
 
       // Test 3: Token endpoint (should return 400 without proper params, not 404)
@@ -123,12 +123,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recommendations: []
       };
 
-      if (results.tests.authorization?.status === 404) {
+      if ((results.tests as any).authorization?.status === 404) {
         results.analysis.likely_issues.push('OAuth application not published or active');
         results.analysis.recommendations.push('Check application status in Creator Dashboard');
       }
 
-      if (results.tests.authorization?.status === 400) {
+      if ((results.tests as any).authorization?.status === 400) {
         results.analysis.likely_issues.push('Invalid redirect URI or parameters');
         results.analysis.recommendations.push('Verify redirect URI matches exactly');
       }
@@ -297,13 +297,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { imageId } = req.params;
       const imageBuffer = await getImageUrl(imageId);
-      
+
       res.set({
         'Content-Type': 'image/png',
         'Cache-Control': 'public, max-age=86400',
         'Access-Control-Allow-Origin': '*'
       });
-      
+
       res.send(imageBuffer);
     } catch (error) {
       res.status(404).json({ message: "Image not found" });
