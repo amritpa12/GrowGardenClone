@@ -24,5 +24,5 @@ task = "shell.exec"
 args = "npm run dev"
 
 [deployment]
-run = ["sh", "-c", "npm start"]
+run = ["sh", "-c", "node dist/index.js"]
 build = ["sh", "-c", "npm run build"]
