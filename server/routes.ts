@@ -84,7 +84,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           working: authResponse.status === 200
         };
       } catch (error) {
-        results.tests.authorization = { error: error instanceof Error ? error.message : String(error) };
+        results.tests.authorization = { error: error instanceof Error ? error.message : String(error) };or) };
       }
 
       // Test 2: Try different scope format

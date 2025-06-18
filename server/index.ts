@@ -181,9 +181,19 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    console.error('Server error:', err);
-    res.status(status).json({ message });
-    // Don't throw the error - this was causing server crashes
+    console.error('Server error:', {
+      message: err.message,
+      stack: err.stack,
+      url: _req.url,
+      method: _req.method,
+      timestamp: new Date().toISOString()
+    });
+    
+    if (!res.headersSent) {
+      res.status(status).json({ 
+        message: status === 500 ? "Internal Server Error" : message 
+      });
+    }
   });
 
 

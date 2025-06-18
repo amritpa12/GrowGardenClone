@@ -26,7 +26,7 @@ export class MongoStorage implements IStorage {
   // User methods
   async getUser(id: number): Promise<UserType | undefined> {
     await this.init();
-    const user = await User.findById(id);
+    const user = await User.findOne({ _id: id });
     return user ? this.convertUser(user) : undefined;
   }
 
@@ -51,7 +51,7 @@ export class MongoStorage implements IStorage {
 
   async getTradingItem(id: number): Promise<TradingItemType | undefined> {
     await this.init();
-    const item = await TradingItem.findById(id);
+    const item = await TradingItem.findOne({ _id: id });
     return item ? this.convertTradingItem(item) : undefined;
   }
 
@@ -80,24 +80,19 @@ export class MongoStorage implements IStorage {
 
   async getTradeAd(id: number): Promise<TradeAdType | undefined> {
     await this.init();
-    const ad = await TradeAd.findById(id);
+    const ad = await TradeAd.findOne({ _id: id });
     return ad ? this.convertTradeAd(ad) : undefined;
   }
 
   async createTradeAd(ad: InsertTradeAd): Promise<TradeAdType> {
     await this.init();
-    // Convert userId from number to ObjectId format for MongoDB  
-    const adData = {
-      ...ad,
-      userId: ad.userId || 1 // Use default user ID if not provided
-    };
-    const newAd = await TradeAd.create(adData);
+    const newAd = await TradeAd.create(ad);
     return this.convertTradeAd(newAd);
   }
 
   async updateTradeAdStatus(id: number, status: string): Promise<TradeAdType | undefined> {
     await this.init();
-    const ad = await TradeAd.findByIdAndUpdate(id, { status }, { new: true });
+    const ad = await TradeAd.findOneAndUpdate({ _id: id }, { status }, { new: true });
     return ad ? this.convertTradeAd(ad) : undefined;
   }
 
@@ -159,7 +154,7 @@ export class MongoStorage implements IStorage {
   // Helper methods to convert MongoDB documents to expected format
   private convertUser(user: any): UserType {
     return {
-      id: user._id.toString(),
+      id: user._id ? user._id.toString() : user.id,
       username: user.username,
       password: user.password,
       robloxUsername: user.robloxUsername || null,
@@ -171,7 +166,7 @@ export class MongoStorage implements IStorage {
 
   private convertTradingItem(item: any): TradingItemType {
     return {
-      id: item._id.toString(),
+      id: item._id ? item._id.toString() : item.id,
       name: item.name,
       type: item.type,
       rarity: item.rarity,
@@ -179,20 +174,20 @@ export class MongoStorage implements IStorage {
       previousValue: item.previousValue || null,
       changePercent: item.changePercent || null,
       imageUrl: item.imageUrl || null,
-      tradeable: item.tradeable || null,
+      tradeable: item.tradeable !== false,
       updatedAt: item.updatedAt || null
     };
   }
 
   private convertTradeAd(ad: any): TradeAdType {
     return {
-      id: ad._id.toString(),
+      id: ad._id ? ad._id.toString() : ad.id,
       userId: ad.userId ? ad.userId.toString() : null,
       title: ad.title,
       description: ad.description || null,
-      offeringItems: ad.offeringItems,
-      wantingItems: ad.wantingItems,
-      status: ad.status || null,
+      offeringItems: ad.offeringItems || [],
+      wantingItems: ad.wantingItems || [],
+      status: ad.status || 'active',
       createdAt: ad.createdAt || null
     };
   }
