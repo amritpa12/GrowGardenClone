@@ -581,6 +581,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Get value list data from Google Sheets
   app.get('/api/value-list', async (req, res) => {
+    // COMMENTED OUT: Google Sheets API call
+    // This was causing startup delays and expensive operations
+    try {
+      // Return empty array for now - Google Sheets API disabled
+      res.json([]);
+    } catch (error) {
+      console.error('Failed to fetch value list data:', error);
+      res.status(500).json({ error: 'Failed to fetch value list data' });
+    }
+
+    /*
+    // ORIGINAL GOOGLE SHEETS CODE - COMMENTED OUT
     try {
       const VAL_SHEET_ID = process.env.VAL_SHEET_ID;
       const serviceAccountKeyPath = process.env.GSERVICE_ACCOUNT_KEY;
@@ -663,6 +675,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Failed to fetch value list data:', error);
       res.status(500).json({ error: 'Failed to fetch value list data' });
     }
+    */
   });
 
   // Get item image URL with fallback
