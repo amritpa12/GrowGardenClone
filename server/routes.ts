@@ -292,6 +292,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Image proxy route to handle CORS issues with PostImg
   app.get("/api/image-proxy", proxyImage);
 
+  // GridFS image serving endpoint
+  app.get('/api/images/:imageId', async (req, res) => {
+    try {
+      const { imageId } = req.params;
+      const imageBuffer = await getImageUrl(imageId);
+      
+      res.set({
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=86400',
+        'Access-Control-Allow-Origin': '*'
+      });
+      
+      res.send(imageBuffer);
+    } catch (error) {
+      res.status(404).json({ message: "Image not found" });
+    }
+  });
+
   // Chat Messages API
   app.get("/api/chat-messages/:tradeAdId", async (req, res) => {
     try {
