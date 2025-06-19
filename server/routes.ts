@@ -5,7 +5,6 @@ import { storage as memStorage } from "./storage";
 import { databaseStorage } from "./database-storage";
 import { getItemImageUrl } from "./image-service";
 import { google } from 'googleapis';
-import fs from 'fs';
 
 // Initialize both storage systems
 let tradingItemStorage: any = memStorage; // For trading items (MongoDB preferred)
@@ -48,12 +47,9 @@ import { proxyImage } from './image-proxy';
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint - fast response without database calls
   app.get('/health', (req, res) => {
-    res.status(200).json({ 
+    res.status(200).json({
       status: 'healthy',
-      databases: {
-        mongodb: isUsingMongo ? 'connected' : 'memory',
-        postgresql: isUsingPostgres ? 'connected' : 'memory'
-      },
+      database: isUsingMongo ? 'mongodb' : 'memory',
       timestamp: Date.now(),
       uptime: process.uptime()
     });
@@ -330,7 +326,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tradingItemStorage.getCommunityStats(),
         userTradeStorage.getCommunityStats()
       ]);
-      
+
       const combinedStats = {
         ...tradingStats,
         ...userStats,
@@ -339,7 +335,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           postgresql: isUsingPostgres ? 'connected' : 'memory'
         }
       };
-      
+
       res.json(combinedStats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch community stats" });
