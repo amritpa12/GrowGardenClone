@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRightLeft, Search, Plus, MessageCircle, TrendingUp, Users, MessageSquare, Star, Trophy } from "lucide-react";
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
@@ -12,11 +13,55 @@ import type { TradeAd } from "@shared/schema";
 
 export default function TradeAds() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
 
-  const { data: tradeAds = [] } = useQuery<TradeAd[]>({
+  const { data: rawTradeAds = [] } = useQuery<TradeAd[]>({
     queryKey: ['/api/trade-ads'],
     enabled: true
   });
+
+  // Filter and sort trade ads
+  const filteredAndSortedTradeAds = rawTradeAds
+    .filter(tradeAd => {
+      if (!searchTerm) return true;
+      
+      const searchLower = searchTerm.toLowerCase();
+      const title = tradeAd.title?.toLowerCase() || '';
+      const description = tradeAd.description?.toLowerCase() || '';
+      
+      // Search in offering and wanting items
+      const offeringItems = JSON.parse(tradeAd.offeringItems || '[]');
+      const wantingItems = JSON.parse(tradeAd.wantingItems || '[]');
+      
+      const allItems = [...offeringItems, ...wantingItems];
+      const itemMatches = allItems.some(item => 
+        item.name?.toLowerCase().includes(searchLower) ||
+        item.type?.toLowerCase().includes(searchLower) ||
+        item.mutation?.toLowerCase().includes(searchLower)
+      );
+      
+      return title.includes(searchLower) || 
+             description.includes(searchLower) || 
+             itemMatches;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'oldest':
+          return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+        case 'value-high':
+          // Calculate total value of items (simplified)
+          const aValue = JSON.parse(a.offeringItems || '[]').reduce((sum: number, item: any) => sum + (item.currentValue || 0), 0);
+          const bValue = JSON.parse(b.offeringItems || '[]').reduce((sum: number, item: any) => sum + (item.currentValue || 0), 0);
+          return bValue - aValue;
+        case 'value-low':
+          const aValueLow = JSON.parse(a.offeringItems || '[]').reduce((sum: number, item: any) => sum + (item.currentValue || 0), 0);
+          const bValueLow = JSON.parse(b.offeringItems || '[]').reduce((sum: number, item: any) => sum + (item.currentValue || 0), 0);
+          return aValueLow - bValueLow;
+        case 'newest':
+        default:
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      }
+    });
 
   // Trading Activity Stats
   const tradingStats = {
@@ -258,17 +303,22 @@ export default function TradeAds() {
                   placeholder="Search items by name, mutation, or attributes..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-black/30 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
+                  className="pl-10 bg-black/80 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 h-12 rounded-lg"
                 />
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="text-gray-400 text-sm">Sort By</div>
-                <select className="bg-black/30 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-purple-500">
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="value-high">Highest Value</option>
-                  <option value="value-low">Lowest Value</option>
-                </select>
+              <div className="flex items-center space-x-3">
+                <span className="text-gray-400 text-sm whitespace-nowrap">Sort By</span>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-48 bg-black/80 border-gray-600 text-white focus:border-purple-500 h-12">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectItem value="newest" className="text-white hover:bg-gray-800">Newest First</SelectItem>
+                    <SelectItem value="oldest" className="text-white hover:bg-gray-800">Oldest First</SelectItem>
+                    <SelectItem value="value-high" className="text-white hover:bg-gray-800">Highest Value</SelectItem>
+                    <SelectItem value="value-low" className="text-white hover:bg-gray-800">Lowest Value</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </section>
@@ -276,7 +326,7 @@ export default function TradeAds() {
           {/* Trade Listings */}
           <section className="py-8">
             <div className="space-y-6">
-              {tradeAds.length === 0 ? (
+              {rawTradeAds.length === 0 ? (
                 <Card className="gaming-card">
                   <CardContent className="p-12 text-center">
                     <div className="text-gray-400 mb-4">
@@ -292,8 +342,18 @@ export default function TradeAds() {
                     </Link>
                   </CardContent>
                 </Card>
+              ) : filteredAndSortedTradeAds.length === 0 ? (
+                <Card className="gaming-card">
+                  <CardContent className="p-12 text-center">
+                    <div className="text-gray-400 mb-4">
+                      <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                      <h3 className="text-xl font-semibold text-white mb-2">No Results Found</h3>
+                      <p>Try adjusting your search terms or filters.</p>
+                    </div>
+                  </CardContent>
+                </Card>
               ) : (
-                tradeAds.map((tradeAd) => {
+                filteredAndSortedTradeAds.map((tradeAd) => {
                   const offeringItems = JSON.parse(tradeAd.offeringItems || '[]');
                   const wantingItems = JSON.parse(tradeAd.wantingItems || '[]');
                   
