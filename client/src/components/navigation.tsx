@@ -12,10 +12,10 @@ export default function Navigation() {
     { label: "Trade Ads", path: "/trade-ads" },
     { label: "MiddleMan", path: "/middleman" }, 
     { label: "Stocks", path: "/stocks" },
-    { label: "Weather", path: "#" },
+    { label: "Weather", path: "/status" },
     { label: "Item List", path: "/value-list" },
-    { label: "Vouch", path: "#" },
-    { label: "Search", path: "#" },
+    { label: "Vouch", path: "/status" },
+    { label: "Search", path: "/status" },
     { label: "Giveaways", path: "#" }
   ];
 

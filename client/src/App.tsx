@@ -12,6 +12,7 @@ import Stocks from "@/pages/stocks";
 import ValueList from "@/pages/value-list";
 import AuthCallback from "@/pages/auth-callback";
 import Profile from "@/pages/profile";
+import StatusPage from "@/pages/status";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/stocks" component={Stocks} />
       <Route path="/profile" component={Profile} />
       <Route path="/value-list" component={ValueList} />
+      <Route path="/status" component={StatusPage} />
       <Route path="/auth/callback" component={AuthCallback} />
       <Route component={NotFound} />
     </Switch>
