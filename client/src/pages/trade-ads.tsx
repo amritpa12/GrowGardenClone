@@ -34,7 +34,7 @@ export default function TradeAds() {
       const wantingItems = JSON.parse(tradeAd.wantingItems || '[]');
       
       const allItems = [...offeringItems, ...wantingItems];
-      const itemMatches = allItems.some(item => 
+      const itemMatches = allItems.some((item: any) => 
         item.name?.toLowerCase().includes(searchLower) ||
         item.type?.toLowerCase().includes(searchLower) ||
         item.mutation?.toLowerCase().includes(searchLower)
@@ -63,399 +63,382 @@ export default function TradeAds() {
       }
     });
 
-  // Trading Activity Stats
-  const tradingStats = {
-    tradesLast24h: 11644,
-    usersLast24h: 9882,
-    conversationsLast24h: 138023,
-    weeklyGrowth: 12.5,
-    activeCommunity: true,
-    activeDiscussions: 847
-  };
-
-  // Top Traders Data
-  const topTraders = [
-    { rank: 1, username: "jaminuyt3", trades: 46, badge: "TOP TRADER", color: "bg-yellow-500" },
-    { rank: 2, username: "Bas1c_karma", trades: 42, badge: "TOP TRADER", color: "bg-gray-400" },
-    { rank: 3, username: "SayaPro770", trades: 34, badge: "TOP TRADER", color: "bg-orange-600" },
-    { rank: 4, username: "maddelist", trades: 29, badge: "TOP TRADER", color: "bg-yellow-600" },
-    { rank: 5, username: "j0uju1", trades: 27, badge: "TOP TRADER", color: "bg-yellow-600" }
-  ];
-
-  // New Traders Data
-  const newTraders = [
-    { username: "Baddiwo", badge: "NEW", isNew: true },
-    { username: "Romperka", badge: "NEW", isNew: true },
-    { username: "Andressino130615", badge: "NEW", isNew: true },
-    { username: "alexis233134", badge: "NEW", isNew: true },
-    { username: "Ininama1904", badge: "NEW", isNew: true }
-  ];
-
-  const renderItemCard = (item: any, isOffering: boolean) => {
-    // Clean the image URL - if it already has the proxy, use it directly
-    const imageUrl = item.imageUrl?.startsWith('/api/image-proxy') 
-      ? item.imageUrl 
-      : item.imageUrl 
-      ? `/api/image-proxy?url=${encodeURIComponent(item.imageUrl)}`
-      : null;
-
-    const gradientClass = isOffering 
-      ? "from-purple-500 to-blue-500" 
-      : "from-green-500 to-teal-500";
-
-    return (
-      <div key={item.id} className="bg-black/30 rounded-xl p-4 border border-gray-700/50">
-        <div className="w-16 h-16 rounded-lg mx-auto mb-2 flex items-center justify-center relative">
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={item.name}
-              className="w-full h-full object-cover rounded-lg"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const parent = target.parentElement;
-                if (parent && !parent.querySelector('.fallback-icon')) {
-                  const fallbackDiv = document.createElement('div');
-                  fallbackDiv.className = `fallback-icon w-full h-full bg-gradient-to-br ${gradientClass} rounded-lg flex items-center justify-center`;
-                  fallbackDiv.innerHTML = `<span class="text-white text-xs font-bold">${item.name.slice(0, 2)}</span>`;
-                  parent.appendChild(fallbackDiv);
-                }
-              }}
-            />
-          ) : (
-            <div className={`w-full h-full bg-gradient-to-br ${gradientClass} rounded-lg flex items-center justify-center`}>
-              <span className="text-white text-xs font-bold">{item.name.slice(0, 2)}</span>
-            </div>
-          )}
-          
-          {/* Quantity Badge */}
-          {item.quantity && item.quantity > 1 ? (
-            <div className="absolute -top-1 -right-1 bg-gray-900 text-white px-1.5 py-0.5 rounded text-xs font-bold border border-gray-600">
-              ×{item.quantity}
-            </div>
-          ) : null}
-        </div>
-        
-        {/* Customization Values */}
-        {(item.weight > 0 || item.petAge > 0 || (item.mutation && item.mutation !== '')) ? (
-          <div className="text-xs mb-2 space-y-0.5">
-            {item.weight > 0 ? (
-              <div className="text-center text-green-300 font-medium">
-                {item.weight} kg
-              </div>
-            ) : null}
-            {item.petAge > 0 ? (
-              <div className="text-center text-blue-300 font-medium">
-                Age: {item.petAge}
-              </div>
-            ) : null}
-            {item.mutation && item.mutation !== '' ? (
-              <div className="text-center text-purple-300 font-medium">
-                {item.mutation}
-                {item.mutationValue > 0 ? (
-                  <span className="text-yellow-300 ml-1">({item.mutationValue.toLocaleString()})</span>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-        
-        <div className="text-center text-white text-sm font-medium">{item.name}</div>
-        <div className="text-center text-gray-400 text-xs">{item.type}</div>
-      </div>
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <Navigation />
-      
-      <main className="pt-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <section className="py-8">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-4xl font-bold mb-2 text-white">Trade Ads</h1>
-                <p className="text-gray-400">Browse and find the perfect trade for your items.</p>
-              </div>
-              <Link href="/trade-ads/create">
-                <Button className="gaming-button">
-                  <Plus className="mr-2" size={18} />
-                  Create Trade Ad
+      <div className="relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+
+        <div className="relative z-10">
+          {/* Hero Section */}
+          <section className="py-20 px-6">
+            <div className="max-w-7xl mx-auto text-center">
+              <h1 className="text-6xl font-bold text-white mb-6 tracking-tight">
+                Trade <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">Hub</span>
+              </h1>
+              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                Browse and create trade advertisements for Grow a Garden items. Connect with other players and make the trades you want.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/create-trade-ad">
+                  <Button size="lg" className="gaming-button text-lg px-8">
+                    <Plus className="mr-2" size={20} />
+                    Create Trade Ad
+                  </Button>
+                </Link>
+                <Button size="lg" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700 text-lg px-8">
+                  <Search className="mr-2" size={20} />
+                  Browse All
                 </Button>
-              </Link>
+              </div>
             </div>
           </section>
 
-          {/* Trading Activity */}
-          <section className="py-8">
-            <Card className="gaming-card mb-8">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-purple-400 flex items-center">
-                  <TrendingUp className="mr-2" size={20} />
-                  Trading Activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Trades Last 24hrs */}
-                  <div className="bg-black/30 rounded-xl p-6 border border-gray-700/50">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-gray-400 text-sm">Trades</span>
-                      <TrendingUp className="text-green-400" size={16} />
-                    </div>
-                    <div className="text-2xl font-bold text-white">{tradingStats.tradesLast24h.toLocaleString()}</div>
-                    <div className="text-xs text-gray-400">Last 24 hours</div>
-                  </div>
+          {/* Stats Section */}
+          <section className="py-16 px-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                <Card className="gaming-card text-center">
+                  <CardContent className="p-6">
+                    <div className="text-3xl font-bold text-purple-400 mb-2">{rawTradeAds.length}</div>
+                    <div className="text-gray-300">Active Trades</div>
+                  </CardContent>
+                </Card>
+                <Card className="gaming-card text-center">
+                  <CardContent className="p-6">
+                    <div className="text-3xl font-bold text-blue-400 mb-2">2.4K</div>
+                    <div className="text-gray-300">Total Traders</div>
+                  </CardContent>
+                </Card>
+                <Card className="gaming-card text-center">
+                  <CardContent className="p-6">
+                    <div className="text-3xl font-bold text-green-400 mb-2">8.7K</div>
+                    <div className="text-gray-300">Completed Deals</div>
+                  </CardContent>
+                </Card>
+                <Card className="gaming-card text-center">
+                  <CardContent className="p-6">
+                    <div className="text-3xl font-bold text-yellow-400 mb-2">98%</div>
+                    <div className="text-gray-300">Success Rate</div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </section>
 
-                  {/* Users Last 24hrs */}
-                  <div className="bg-black/30 rounded-xl p-6 border border-gray-700/50">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-gray-400 text-sm">Active Users</span>
-                      <Users className="text-blue-400" size={16} />
+          {/* Trading Features */}
+          <section className="py-8 px-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <Card className="gaming-card text-center">
+                  <CardContent className="p-8">
+                    <div className="text-purple-400 mb-4">
+                      <TrendingUp className="w-12 h-12 mx-auto" />
                     </div>
-                    <div className="text-2xl font-bold text-white">{tradingStats.usersLast24h.toLocaleString()}</div>
-                    <div className="text-xs text-gray-400">Last 24 hours</div>
-                  </div>
-
-                  {/* Conversations Last 24hrs */}
-                  <div className="bg-black/30 rounded-xl p-6 border border-gray-700/50">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-gray-400 text-sm">Conversations</span>
-                      <MessageSquare className="text-purple-400" size={16} />
+                    <h3 className="text-xl font-semibold text-white mb-3">Real-Time Values</h3>
+                    <p className="text-gray-400">Stay updated with current market prices and trending items in the trading community.</p>
+                  </CardContent>
+                </Card>
+                <Card className="gaming-card text-center">
+                  <CardContent className="p-8">
+                    <div className="text-blue-400 mb-4">
+                      <Users className="w-12 h-12 mx-auto" />
                     </div>
-                    <div className="text-2xl font-bold text-white">{tradingStats.conversationsLast24h.toLocaleString()}</div>
-                    <div className="text-xs text-gray-400">Last 24 hours</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                    <h3 className="text-xl font-semibold text-white mb-3">Trusted Community</h3>
+                    <p className="text-gray-400">Trade with verified members and build your reputation through successful exchanges.</p>
+                  </CardContent>
+                </Card>
+                <Card className="gaming-card text-center">
+                  <CardContent className="p-8">
+                    <div className="text-green-400 mb-4">
+                      <MessageSquare className="w-12 h-12 mx-auto" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-3">Secure Trading</h3>
+                    <p className="text-gray-400">Built-in chat system and middleman services ensure safe and smooth transactions.</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </section>
 
-            {/* Top Traders and New Traders */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              {/* Top Traders */}
-              <Card className="gaming-card">
-                <CardHeader>
-                  <CardTitle className="text-lg font-bold text-purple-400 flex items-center">
-                    <Trophy className="mr-2" size={18} />
-                    Top Traders
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {topTraders.map((trader, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-black/30 rounded-lg border border-gray-700/50">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-8 h-8 ${trader.color} rounded-full flex items-center justify-center text-white text-sm font-bold`}>
+          {/* Popular Items */}
+          <section className="py-8 px-6">
+            <div className="max-w-7xl mx-auto">
+              <h2 className="text-3xl font-bold text-white mb-8 text-center">Most Traded Items</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-16">
+                {[
+                  { name: "Dragon Egg", value: "2.5M", trend: "+15%" },
+                  { name: "Phoenix Feather", value: "1.8M", trend: "+8%" },
+                  { name: "Crystal Shard", value: "950K", trend: "-3%" },
+                  { name: "Mystic Orb", value: "720K", trend: "+12%" },
+                  { name: "Golden Seed", value: "500K", trend: "+5%" },
+                  { name: "Rainbow Flower", value: "350K", trend: "+20%" }
+                ].map((item, index) => (
+                  <Card key={index} className="gaming-card text-center">
+                    <CardContent className="p-4">
+                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <Star className="w-8 h-8 text-white" />
+                      </div>
+                      <h4 className="font-semibold text-white text-sm mb-1">{item.name}</h4>
+                      <div className="text-purple-400 font-bold text-sm mb-1">{item.value}</div>
+                      <Badge variant={item.trend.startsWith('+') ? 'default' : 'destructive'} className="text-xs">
+                        {item.trend}
+                      </Badge>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Leaderboard */}
+          <section className="py-8 px-6">
+            <div className="max-w-7xl mx-auto">
+              <h2 className="text-3xl font-bold text-white mb-8 text-center">Top Traders</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+                {[
+                  { rank: 1, name: "TradeMaster99", trades: 847, rating: 4.9 },
+                  { rank: 2, name: "DragonDealer", trades: 652, rating: 4.8 },
+                  { rank: 3, name: "GemCollector", trades: 589, rating: 4.7 }
+                ].map((trader, index) => (
+                  <Card key={index} className="gaming-card">
+                    <CardContent className="p-6">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex-shrink-0">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-white ${
+                            trader.rank === 1 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600' :
+                            trader.rank === 2 ? 'bg-gradient-to-r from-gray-300 to-gray-500' :
+                            'bg-gradient-to-r from-orange-400 to-orange-600'
+                          }`}>
                             {trader.rank}
                           </div>
-                          <div>
-                            <div className="text-white font-medium">{trader.username}</div>
-                            <div className="text-gray-400 text-xs">{trader.trades} trades</div>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-white">{trader.name}</h3>
+                          <div className="text-sm text-gray-400">{trader.trades} trades completed</div>
+                          <div className="flex items-center mt-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="text-yellow-400 text-sm ml-1">{trader.rating}</span>
                           </div>
                         </div>
-                        <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400">
-                          {trader.badge}
-                        </Badge>
+                        <Trophy className="w-6 h-6 text-purple-400" />
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* New Traders */}
-              <Card className="gaming-card">
-                <CardHeader>
-                  <CardTitle className="text-lg font-bold text-purple-400 flex items-center">
-                    <Star className="mr-2" size={18} />
-                    New Traders
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {newTraders.map((trader, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-black/30 rounded-lg border border-gray-700/50">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                            {trader.username.charAt(0)}
-                          </div>
-                          <div className="text-white font-medium">{trader.username}</div>
-                        </div>
-                        <Badge variant="secondary" className="bg-green-500/20 text-green-400">
-                          {trader.badge}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </section>
 
           {/* Search and Filters */}
-          <section className="py-8">
-            <div className="flex flex-col md:flex-row gap-4 mb-8">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <Input
-                  placeholder="Search items by name, mutation, or attributes..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-black/80 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 h-12 rounded-lg"
-                />
-              </div>
-              <div className="flex items-center space-x-3">
-                <span className="text-gray-400 text-sm whitespace-nowrap">Sort By</span>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-48 bg-black/80 border-gray-600 text-white focus:border-purple-500 h-12">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-700">
-                    <SelectItem value="newest" className="text-white hover:bg-gray-800">Newest First</SelectItem>
-                    <SelectItem value="oldest" className="text-white hover:bg-gray-800">Oldest First</SelectItem>
-                    <SelectItem value="value-high" className="text-white hover:bg-gray-800">Highest Value</SelectItem>
-                    <SelectItem value="value-low" className="text-white hover:bg-gray-800">Lowest Value</SelectItem>
-                  </SelectContent>
-                </Select>
+          <section className="py-8 px-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex flex-col md:flex-row gap-4 mb-8">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <Input
+                    placeholder="Search items by name, mutation, or attributes..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-black/80 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 h-12 rounded-lg"
+                  />
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="text-gray-400 text-sm whitespace-nowrap">Sort By</span>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-48 bg-black/80 border-gray-600 text-white focus:border-purple-500 h-12">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-700">
+                      <SelectItem value="newest" className="text-white hover:bg-gray-800">Newest First</SelectItem>
+                      <SelectItem value="oldest" className="text-white hover:bg-gray-800">Oldest First</SelectItem>
+                      <SelectItem value="value-high" className="text-white hover:bg-gray-800">Highest Value</SelectItem>
+                      <SelectItem value="value-low" className="text-white hover:bg-gray-800">Lowest Value</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           </section>
 
           {/* Trade Listings */}
-          <section className="py-8">
-            <div className="space-y-6">
-              {rawTradeAds.length === 0 ? (
-                <Card className="gaming-card">
-                  <CardContent className="p-12 text-center">
-                    <div className="text-gray-400 mb-4">
-                      <ArrowRightLeft className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <h3 className="text-xl font-semibold text-white mb-2">No Trade Ads Yet</h3>
-                      <p>Be the first to create a trade ad and start trading!</p>
-                    </div>
-                    <Link href="/trade-ads/create">
-                      <Button className="gaming-button">
-                        <Plus className="mr-2" size={18} />
-                        Create Your First Trade Ad
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ) : filteredAndSortedTradeAds.length === 0 ? (
-                <Card className="gaming-card">
-                  <CardContent className="p-12 text-center">
-                    <div className="text-gray-400 mb-4">
-                      <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <h3 className="text-xl font-semibold text-white mb-2">No Results Found</h3>
-                      <p>Try adjusting your search terms or filters.</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                filteredAndSortedTradeAds.map((tradeAd) => {
-                  const offeringItems = JSON.parse(tradeAd.offeringItems || '[]');
-                  const wantingItems = JSON.parse(tradeAd.wantingItems || '[]');
-                  
-                  return (
-                    <Card key={tradeAd.id} className="gaming-card">
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-purple-500/50">
-                              {(tradeAd as any).profileImageUrl ? (
-                                <img 
-                                  src={(tradeAd as any).profileImageUrl} 
-                                  alt={(tradeAd as any).username || `User ${tradeAd.userId}`}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    // Fallback to generated avatar if Roblox image fails
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = `https://ui-avatars.com/api/?name=${(tradeAd as any).username || 'User'}&background=8b5cf6&color=fff&size=40`;
-                                  }}
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                                  <span className="text-white font-bold text-sm">
-                                    {((tradeAd as any).username || 'U').charAt(0).toUpperCase()}
-                                  </span>
+          <section className="py-8 px-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="space-y-6">
+                {rawTradeAds.length === 0 ? (
+                  <Card className="gaming-card">
+                    <CardContent className="p-12 text-center">
+                      <div className="text-gray-400 mb-4">
+                        <ArrowRightLeft className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                        <h3 className="text-xl font-semibold text-white mb-2">No Trade Ads Yet</h3>
+                        <p>Be the first to create a trade ad and start trading!</p>
+                      </div>
+                      <Link href="/create-trade-ad">
+                        <Button className="gaming-button">
+                          <Plus className="mr-2" size={18} />
+                          Create Your First Trade Ad
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                ) : filteredAndSortedTradeAds.length === 0 ? (
+                  <Card className="gaming-card">
+                    <CardContent className="p-12 text-center">
+                      <div className="text-gray-400 mb-4">
+                        <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                        <h3 className="text-xl font-semibold text-white mb-2">No Results Found</h3>
+                        <p>Try adjusting your search terms or filters.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  filteredAndSortedTradeAds.map((tradeAd: TradeAd) => {
+                    const offeringItems = JSON.parse(tradeAd.offeringItems || '[]');
+                    const wantingItems = JSON.parse(tradeAd.wantingItems || '[]');
+                    
+                    return (
+                      <Card key={tradeAd.id} className="gaming-card">
+                        <CardContent className="p-6">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-purple-500/50">
+                                {(tradeAd as any).profileImageUrl ? (
+                                  <img 
+                                    src={(tradeAd as any).profileImageUrl} 
+                                    alt={(tradeAd as any).username || `User ${tradeAd.userId}`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      // Fallback to generated avatar if Roblox image fails
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = `https://ui-avatars.com/api/?name=${(tradeAd as any).username || 'User'}&background=8b5cf6&color=fff&size=40`;
+                                    }}
+                                  />
+                                ) : (
+                                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                                    <span className="text-white font-bold text-sm">
+                                      {((tradeAd as any).username || 'U').charAt(0).toUpperCase()}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                              <div>
+                                <div className="font-semibold text-white">
+                                  {(tradeAd as any).username || `User ${tradeAd.userId}`}
                                 </div>
-                              )}
+                                <div className="text-sm text-gray-400">
+                                  {tradeAd.createdAt ? new Date(tradeAd.createdAt).toLocaleDateString() : 'Recent'}
+                                </div>
+                              </div>
                             </div>
+                            <div className="flex space-x-2">
+                              <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                                <MessageCircle className="mr-2" size={16} />
+                                Chat
+                              </Button>
+                              <Button className="gaming-button">
+                                <ArrowRightLeft className="mr-2" size={16} />
+                                Trade
+                              </Button>
+                            </div>
+                          </div>
+
+                          {tradeAd.title && (
+                            <h3 className="text-lg font-semibold text-white mb-2">{tradeAd.title}</h3>
+                          )}
+                          
+                          {tradeAd.description && (
+                            <p className="text-gray-300 mb-4">{tradeAd.description}</p>
+                          )}
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Offering Items */}
                             <div>
-                              <div className="font-semibold text-white">
-                                {(tradeAd as any).username || `User ${tradeAd.userId}`}
+                              <h4 className="text-sm font-semibold text-green-400 mb-3 flex items-center">
+                                <Plus className="mr-2" size={16} />
+                                Offering ({offeringItems.length})
+                              </h4>
+                              <div className="space-y-2">
+                                {offeringItems.slice(0, 3).map((item: any, index: number) => (
+                                  <div key={index} className="flex items-center justify-between bg-black/30 rounded-lg p-3">
+                                    <div className="flex items-center space-x-3">
+                                      <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                                        <span className="text-white text-xs font-bold">
+                                          {item.name?.charAt(0)?.toUpperCase() || '?'}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <div className="text-white font-medium text-sm">{item.name}</div>
+                                        {item.quantity && (
+                                          <div className="text-gray-400 text-xs">Qty: {item.quantity}</div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    {item.currentValue && (
+                                      <Badge variant="secondary" className="bg-green-500/20 text-green-400">
+                                        {item.currentValue.toLocaleString()}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                ))}
+                                {offeringItems.length > 3 && (
+                                  <div className="text-center text-gray-400 text-sm">
+                                    +{offeringItems.length - 3} more items
+                                  </div>
+                                )}
                               </div>
-                              <div className="text-sm text-gray-400">
-                                {tradeAd.createdAt ? new Date(tradeAd.createdAt).toLocaleDateString() : 'Recent'}
+                            </div>
+
+                            {/* Wanting Items */}
+                            <div>
+                              <h4 className="text-sm font-semibold text-blue-400 mb-3 flex items-center">
+                                <Search className="mr-2" size={16} />
+                                Looking For ({wantingItems.length})
+                              </h4>
+                              <div className="space-y-2">
+                                {wantingItems.slice(0, 3).map((item: any, index: number) => (
+                                  <div key={index} className="flex items-center justify-between bg-black/30 rounded-lg p-3">
+                                    <div className="flex items-center space-x-3">
+                                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                                        <span className="text-white text-xs font-bold">
+                                          {item.name?.charAt(0)?.toUpperCase() || '?'}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <div className="text-white font-medium text-sm">{item.name}</div>
+                                        {item.quantity && (
+                                          <div className="text-gray-400 text-xs">Qty: {item.quantity}</div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    {item.currentValue && (
+                                      <Badge variant="secondary" className="bg-blue-500/20 text-blue-400">
+                                        {item.currentValue.toLocaleString()}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                ))}
+                                {wantingItems.length > 3 && (
+                                  <div className="text-center text-gray-400 text-sm">
+                                    +{wantingItems.length - 3} more items
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
-                          <div className="flex space-x-2">
-                            <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
-                              <MessageCircle className="mr-2" size={16} />
-                              Chat
-                            </Button>
-                            <Button className="gaming-button">
-                              <ArrowRightLeft className="mr-2" size={16} />
-                              Trade
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div className="mb-4">
-                          <h3 className="text-white font-semibold">{tradeAd.title}</h3>
-                          {tradeAd.description ? (
-                            <p className="text-gray-400 text-sm mt-1">{tradeAd.description}</p>
-                          ) : null}
-                        </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-                          {/* Offering */}
-                          <div>
-                            <div className="flex items-center space-x-2 mb-3">
-                              <span className="text-purple-400 text-sm">🌟 Offering</span>
-                            </div>
-                            <div className="space-y-2">
-                              {offeringItems.map((item: any, index: number) => 
-                                <div key={`offering-${index}-${item.name}`}>
-                                  {renderItemCard(item, true)}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Trade Arrow */}
-                          <div className="flex justify-center">
-                            <div className="bg-purple-500/20 rounded-full p-3">
-                              <ArrowRightLeft className="text-purple-400" size={24} />
-                            </div>
-                          </div>
-
-                          {/* Wants */}
-                          <div>
-                            <div className="flex items-center space-x-2 mb-3">
-                              <span className="text-purple-400 text-sm">🌟 Wants</span>
-                            </div>
-                            <div className="space-y-2">
-                              {wantingItems.map((item: any, index: number) => 
-                                <div key={`wanting-${index}-${item.name}`}>
-                                  {renderItemCard(item, false)}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })
-              )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
             </div>
           </section>
         </div>
-      </main>
-
+      </div>
       <Footer />
     </div>
   );
