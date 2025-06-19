@@ -165,36 +165,6 @@ export default function TradeAds() {
             </div>
           </section>
 
-          {/* Popular Items */}
-          <section className="py-8 px-6">
-            <div className="max-w-7xl mx-auto">
-              <h2 className="text-3xl font-bold text-white mb-8 text-center">Most Traded Items</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-16">
-                {[
-                  { name: "Dragon Egg", value: "2.5M", trend: "+15%" },
-                  { name: "Phoenix Feather", value: "1.8M", trend: "+8%" },
-                  { name: "Crystal Shard", value: "950K", trend: "-3%" },
-                  { name: "Mystic Orb", value: "720K", trend: "+12%" },
-                  { name: "Golden Seed", value: "500K", trend: "+5%" },
-                  { name: "Rainbow Flower", value: "350K", trend: "+20%" }
-                ].map((item, index) => (
-                  <Card key={index} className="gaming-card text-center">
-                    <CardContent className="p-4">
-                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                        <Star className="w-8 h-8 text-white" />
-                      </div>
-                      <h4 className="font-semibold text-white text-sm mb-1">{item.name}</h4>
-                      <div className="text-purple-400 font-bold text-sm mb-1">{item.value}</div>
-                      <Badge variant={item.trend.startsWith('+') ? 'default' : 'destructive'} className="text-xs">
-                        {item.trend}
-                      </Badge>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </section>
-
           {/* Leaderboard */}
           <section className="py-8 px-6">
             <div className="max-w-7xl mx-auto">
@@ -300,8 +270,6 @@ export default function TradeAds() {
                     const offeringItems = JSON.parse(tradeAd.offeringItems || '[]');
                     const wantingItems = JSON.parse(tradeAd.wantingItems || '[]');
                     
-
-                    
                     return (
                       <Card key={tradeAd.id} className="gaming-card">
                         <CardContent className="p-6">
@@ -367,29 +335,20 @@ export default function TradeAds() {
                                 {offeringItems.slice(0, 3).map((item: any, index: number) => (
                                   <div key={index} className="flex items-center justify-between bg-black/30 rounded-lg p-3">
                                     <div className="flex items-center space-x-3">
-                                      <div className="w-8 h-8 rounded-lg overflow-hidden border border-green-500/30">
+                                      <div className="w-8 h-8 rounded-lg border border-green-500/30 flex items-center justify-center relative overflow-hidden">
                                         {item.imageUrl ? (
                                           <img 
                                             src={item.imageUrl}
                                             alt={item.name}
                                             className="w-full h-full object-cover"
-                                            onLoad={(e) => {
-                                              const target = e.target as HTMLImageElement;
-                                              target.nextElementSibling?.classList.add('hidden');
-                                            }}
-                                            onError={(e) => {
-                                              console.log('Image failed to load:', item.imageUrl);
-                                              const target = e.target as HTMLImageElement;
-                                              target.style.display = 'none';
-                                              target.nextElementSibling?.classList.remove('hidden');
-                                            }}
                                           />
-                                        ) : null}
-                                        <div className={`w-full h-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center ${item.imageUrl ? '' : ''}`}>
-                                          <span className="text-white text-xs font-bold">
-                                            {item.name?.charAt(0)?.toUpperCase() || '?'}
-                                          </span>
-                                        </div>
+                                        ) : (
+                                          <div className="w-full h-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center">
+                                            <span className="text-white text-xs font-bold">
+                                              {item.name?.charAt(0)?.toUpperCase() || '?'}
+                                            </span>
+                                          </div>
+                                        )}
                                       </div>
                                       <div>
                                         <div className="text-white font-medium text-sm">{item.name}</div>
@@ -423,29 +382,20 @@ export default function TradeAds() {
                                 {wantingItems.slice(0, 3).map((item: any, index: number) => (
                                   <div key={index} className="flex items-center justify-between bg-black/30 rounded-lg p-3">
                                     <div className="flex items-center space-x-3">
-                                      <div className="w-8 h-8 rounded-lg overflow-hidden border border-blue-500/30">
+                                      <div className="w-8 h-8 rounded-lg border border-blue-500/30 flex items-center justify-center relative overflow-hidden">
                                         {item.imageUrl ? (
                                           <img 
                                             src={item.imageUrl}
                                             alt={item.name}
                                             className="w-full h-full object-cover"
-                                            onLoad={(e) => {
-                                              const target = e.target as HTMLImageElement;
-                                              target.nextElementSibling?.classList.add('hidden');
-                                            }}
-                                            onError={(e) => {
-                                              console.log('Image failed to load:', item.imageUrl);
-                                              const target = e.target as HTMLImageElement;
-                                              target.style.display = 'none';
-                                              target.nextElementSibling?.classList.remove('hidden');
-                                            }}
                                           />
-                                        ) : null}
-                                        <div className={`w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center ${item.imageUrl ? '' : ''}`}>
-                                          <span className="text-white text-xs font-bold">
-                                            {item.name?.charAt(0)?.toUpperCase() || '?'}
-                                          </span>
-                                        </div>
+                                        ) : (
+                                          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                                            <span className="text-white text-xs font-bold">
+                                              {item.name?.charAt(0)?.toUpperCase() || '?'}
+                                            </span>
+                                          </div>
+                                        )}
                                       </div>
                                       <div>
                                         <div className="text-white font-medium text-sm">{item.name}</div>
