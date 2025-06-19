@@ -166,7 +166,7 @@ export default function TradeAds() {
           </section>
 
           {/* Leaderboard */}
-          <section className="py-8 px-6">
+          {/* <section className="py-8 px-6">
             <div className="max-w-7xl mx-auto">
               <h2 className="text-3xl font-bold text-white mb-8 text-center">Top Traders</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
@@ -202,7 +202,7 @@ export default function TradeAds() {
                 ))}
               </div>
             </div>
-          </section>
+          </section> */}
 
           {/* Search and Filters */}
           <section className="py-8 px-6">
