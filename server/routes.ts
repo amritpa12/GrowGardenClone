@@ -7,23 +7,36 @@ import { getItemImageUrl } from "./image-service";
 import { google } from 'googleapis';
 import fs from 'fs';
 
-// Auto-detect which storage to use based on MongoDB connection
-let storage: any = memStorage;
+// Initialize both storage systems
+let tradingItemStorage: any = memStorage; // For trading items (MongoDB preferred)
+let userTradeStorage: any = memStorage; // For users/trade ads (PostgreSQL preferred)
 let isUsingMongo = false;
+let isUsingPostgres = false;
 
 async function initializeStorage() {
+  // Try MongoDB for trading items
   try {
     await mongoStorage.init();
-    console.log('✅ MongoDB Atlas connected successfully - using cloud database');
-    storage = mongoStorage;
+    console.log('✅ MongoDB Atlas connected successfully - using for trading items');
+    tradingItemStorage = mongoStorage;
     isUsingMongo = true;
-
-    // Initialize GridFS for image storage with better error handling
   } catch (error) {
-    console.log('⚠️  MongoDB Atlas connection failed - using local memory storage');
+    console.log('⚠️  MongoDB Atlas connection failed - using memory storage for trading items');
     console.log('   Error:', error.message);
-    storage = memStorage;
+    tradingItemStorage = memStorage;
     isUsingMongo = false;
+  }
+
+  // Try PostgreSQL for users and trade ads
+  try {
+    console.log('✅ PostgreSQL connected successfully - using for users and trade ads');
+    userTradeStorage = databaseStorage;
+    isUsingPostgres = true;
+  } catch (error) {
+    console.log('⚠️  PostgreSQL connection failed - using memory storage for users/trade ads');
+    console.log('   Error:', error.message);
+    userTradeStorage = memStorage;
+    isUsingPostgres = false;
   }
 }
 
@@ -37,6 +50,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/health', (req, res) => {
     res.status(200).json({ 
       status: 'healthy',
+      databases: {
+        mongodb: isUsingMongo ? 'connected' : 'memory',
+        postgresql: isUsingPostgres ? 'connected' : 'memory'
+      },
       timestamp: Date.now(),
       uptime: process.uptime()
     });
@@ -131,10 +148,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Trading Items API
+  // Trading Items API - uses MongoDB
   app.get("/api/trading-items", async (req, res) => {
     try {
-      const items = await storage.getAllTradingItems();
+      const items = await tradingItemStorage.getAllTradingItems();
       // Only return tradeable items
       const tradeableItems = items.filter((item: any) => item.tradeable !== false);
       res.json(tradeableItems);
@@ -146,7 +163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/trading-items/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const item = await storage.getTradingItem(id);
+      const item = await tradingItemStorage.getTradingItem(id);
       if (!item) {
         return res.status(404).json({ message: "Trading item not found" });
       }
@@ -159,17 +176,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/trading-items", async (req, res) => {
     try {
       const validatedData = insertTradingItemSchema.parse(req.body);
-      const item = await storage.createTradingItem(validatedData);
+      const item = await tradingItemStorage.createTradingItem(validatedData);
       res.status(201).json(item);
     } catch (error) {
       res.status(400).json({ message: "Invalid trading item data" });
     }
   });
 
-  // Trade Ads API
+  // Trade Ads API - uses PostgreSQL
   app.get("/api/trade-ads", async (req, res) => {
     try {
-      const ads = await databaseStorage.getAllTradeAds();
+      const ads = await userTradeStorage.getAllTradeAds();
       res.json(ads);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch trade ads" });
@@ -200,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('Creating trade ad for user:', userData.username, 'with ID:', userData.id);
 
-      const ad = await databaseStorage.createTradeAd(validatedData);
+      const ad = await userTradeStorage.createTradeAd(validatedData);
       res.status(201).json(ad);
     } catch (error) {
       console.error('Trade ad creation error:', error);
@@ -229,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid user data" });
       }
 
-      const allTradeAds = await databaseStorage.getAllTradeAds();
+      const allTradeAds = await userTradeStorage.getAllTradeAds();
       // Filter trade ads by user ID or username
       const userTradeAds = allTradeAds.filter(ad => 
         ad.userId === userData.id?.toString() || 
@@ -261,7 +278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get the trade ad to verify ownership
-      const tradeAd = await storage.getTradeAd(adId);
+      const tradeAd = await userTradeStorage.getTradeAd(adId);
       if (!tradeAd) {
         return res.status(404).json({ error: "Trade ad not found" });
       }
@@ -272,7 +289,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update status to cancelled instead of hard delete
-      await storage.updateTradeAdStatus(adId, 'cancelled');
+      await userTradeStorage.updateTradeAdStatus(adId, 'cancelled');
 
       res.json({ message: "Trade ad deleted successfully" });
     } catch (error) {
@@ -284,11 +301,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Image proxy route to handle CORS issues with PostImg
   app.get("/api/image-proxy", proxyImage);
 
-  // Chat Messages API
+  // Chat Messages API - uses PostgreSQL
   app.get("/api/chat-messages/:tradeAdId", async (req, res) => {
     try {
       const tradeAdId = parseInt(req.params.tradeAdId);
-      const messages = await storage.getChatMessagesByTradeAd(tradeAdId);
+      const messages = await userTradeStorage.getChatMessagesByTradeAd(tradeAdId);
       res.json(messages);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch chat messages" });
@@ -298,18 +315,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/chat-messages", async (req, res) => {
     try {
       const validatedData = insertChatMessageSchema.parse(req.body);
-      const message = await storage.createChatMessage(validatedData);
+      const message = await userTradeStorage.createChatMessage(validatedData);
       res.status(201).json(message);
     } catch (error) {
       res.status(400).json({ message: "Invalid chat message data" });
     }
   });
 
-  // Community Stats API
+  // Community Stats API - combines data from both databases
   app.get("/api/stats", async (req, res) => {
     try {
-      const stats = await storage.getCommunityStats();
-      res.json(stats);
+      // Get stats from both storages and combine
+      const [tradingStats, userStats] = await Promise.all([
+        tradingItemStorage.getCommunityStats(),
+        userTradeStorage.getCommunityStats()
+      ]);
+      
+      const combinedStats = {
+        ...tradingStats,
+        ...userStats,
+        databases: {
+          mongodb: isUsingMongo ? 'connected' : 'memory',
+          postgresql: isUsingPostgres ? 'connected' : 'memory'
+        }
+      };
+      
+      res.json(combinedStats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch community stats" });
     }
@@ -318,7 +349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Weather API
   app.get("/api/weather", async (req, res) => {
     try {
-      const weather = await storage.getCurrentWeather();
+      const weather = await tradingItemStorage.getCurrentWeather();
       res.json(weather);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch weather data" });
@@ -464,7 +495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Storing user in PostgreSQL:', robloxUser.username);
 
         // Store in PostgreSQL database
-        await databaseStorage.upsertUser({
+        await userTradeStorage.upsertUser({
           id: userData.sub, // Roblox user ID as string
           username: robloxUser.username,
           email: null, // Roblox OAuth doesn't provide email
@@ -540,22 +571,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Database viewer endpoint
+  // Database viewer endpoint - shows both databases
   app.get("/api/debug/database", async (req, res) => {
     try {
       const [tradingItems, tradeAds] = await Promise.all([
-        storage.getAllTradingItems(),
-        storage.getAllTradeAds()
+        tradingItemStorage.getAllTradingItems(),
+        userTradeStorage.getAllTradeAds()
       ]);
 
       res.json({
+        databases: {
+          mongodb: isUsingMongo ? 'connected' : 'memory',
+          postgresql: isUsingPostgres ? 'connected' : 'memory'
+        },
         tradingItems: {
           count: tradingItems.length,
-          sample: tradingItems.slice(0, 5)
+          sample: tradingItems.slice(0, 5),
+          storage: isUsingMongo ? 'mongodb' : 'memory'
         },
         tradeAds: {
           count: tradeAds.length,
-          data: tradeAds
+          data: tradeAds,
+          storage: isUsingPostgres ? 'postgresql' : 'memory'
         },
         timestamp: new Date().toISOString()
       });
