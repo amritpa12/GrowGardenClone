@@ -1,8 +1,0 @@
-[deployment]
-build = ["npm", "run", "build"]
-run = ["npm", "start"]
-deploymentTarget = "autoscale"
-ignorePorts = false
-
-[deployment.env]
-NODE_ENV = "production"
