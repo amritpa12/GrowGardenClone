@@ -365,10 +365,24 @@ export default function TradeAds() {
                                 {offeringItems.slice(0, 3).map((item: any, index: number) => (
                                   <div key={index} className="flex items-center justify-between bg-black/30 rounded-lg p-3">
                                     <div className="flex items-center space-x-3">
-                                      <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                                        <span className="text-white text-xs font-bold">
-                                          {item.name?.charAt(0)?.toUpperCase() || '?'}
-                                        </span>
+                                      <div className="w-8 h-8 rounded-lg overflow-hidden border border-green-500/30">
+                                        {item.imageUrl ? (
+                                          <img 
+                                            src={item.imageUrl}
+                                            alt={item.name}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                              const target = e.target as HTMLImageElement;
+                                              target.style.display = 'none';
+                                              target.nextElementSibling?.classList.remove('hidden');
+                                            }}
+                                          />
+                                        ) : null}
+                                        <div className={`w-full h-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center ${item.imageUrl ? 'hidden' : ''}`}>
+                                          <span className="text-white text-xs font-bold">
+                                            {item.name?.charAt(0)?.toUpperCase() || '?'}
+                                          </span>
+                                        </div>
                                       </div>
                                       <div>
                                         <div className="text-white font-medium text-sm">{item.name}</div>
@@ -402,10 +416,24 @@ export default function TradeAds() {
                                 {wantingItems.slice(0, 3).map((item: any, index: number) => (
                                   <div key={index} className="flex items-center justify-between bg-black/30 rounded-lg p-3">
                                     <div className="flex items-center space-x-3">
-                                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                                        <span className="text-white text-xs font-bold">
-                                          {item.name?.charAt(0)?.toUpperCase() || '?'}
-                                        </span>
+                                      <div className="w-8 h-8 rounded-lg overflow-hidden border border-blue-500/30">
+                                        {item.imageUrl ? (
+                                          <img 
+                                            src={item.imageUrl}
+                                            alt={item.name}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                              const target = e.target as HTMLImageElement;
+                                              target.style.display = 'none';
+                                              target.nextElementSibling?.classList.remove('hidden');
+                                            }}
+                                          />
+                                        ) : null}
+                                        <div className={`w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center ${item.imageUrl ? 'hidden' : ''}`}>
+                                          <span className="text-white text-xs font-bold">
+                                            {item.name?.charAt(0)?.toUpperCase() || '?'}
+                                          </span>
+                                        </div>
                                       </div>
                                       <div>
                                         <div className="text-white font-medium text-sm">{item.name}</div>
