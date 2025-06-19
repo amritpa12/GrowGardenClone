@@ -300,6 +300,8 @@ export default function TradeAds() {
                     const offeringItems = JSON.parse(tradeAd.offeringItems || '[]');
                     const wantingItems = JSON.parse(tradeAd.wantingItems || '[]');
                     
+
+                    
                     return (
                       <Card key={tradeAd.id} className="gaming-card">
                         <CardContent className="p-6">
@@ -371,14 +373,19 @@ export default function TradeAds() {
                                             src={item.imageUrl}
                                             alt={item.name}
                                             className="w-full h-full object-cover"
+                                            onLoad={(e) => {
+                                              const target = e.target as HTMLImageElement;
+                                              target.nextElementSibling?.classList.add('hidden');
+                                            }}
                                             onError={(e) => {
+                                              console.log('Image failed to load:', item.imageUrl);
                                               const target = e.target as HTMLImageElement;
                                               target.style.display = 'none';
                                               target.nextElementSibling?.classList.remove('hidden');
                                             }}
                                           />
                                         ) : null}
-                                        <div className={`w-full h-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center ${item.imageUrl ? 'hidden' : ''}`}>
+                                        <div className={`w-full h-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center ${item.imageUrl ? '' : ''}`}>
                                           <span className="text-white text-xs font-bold">
                                             {item.name?.charAt(0)?.toUpperCase() || '?'}
                                           </span>
@@ -422,14 +429,19 @@ export default function TradeAds() {
                                             src={item.imageUrl}
                                             alt={item.name}
                                             className="w-full h-full object-cover"
+                                            onLoad={(e) => {
+                                              const target = e.target as HTMLImageElement;
+                                              target.nextElementSibling?.classList.add('hidden');
+                                            }}
                                             onError={(e) => {
+                                              console.log('Image failed to load:', item.imageUrl);
                                               const target = e.target as HTMLImageElement;
                                               target.style.display = 'none';
                                               target.nextElementSibling?.classList.remove('hidden');
                                             }}
                                           />
                                         ) : null}
-                                        <div className={`w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center ${item.imageUrl ? 'hidden' : ''}`}>
+                                        <div className={`w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center ${item.imageUrl ? '' : ''}`}>
                                           <span className="text-white text-xs font-bold">
                                             {item.name?.charAt(0)?.toUpperCase() || '?'}
                                           </span>
