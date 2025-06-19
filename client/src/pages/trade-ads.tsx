@@ -99,7 +99,7 @@ export default function TradeAds() {
           </section>
 
           {/* Stats Section */}
-          <section className="py-16 px-6">
+          {/* <section className="py-16 px-6">
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
                 <Card className="gaming-card text-center">
@@ -128,7 +128,7 @@ export default function TradeAds() {
                 </Card>
               </div>
             </div>
-          </section>
+          </section> */}
 
           {/* Trading Features */}
           <section className="py-8 px-6">
@@ -304,7 +304,7 @@ export default function TradeAds() {
                                 </div>
                               </div>
                             </div>
-                            <div className="flex space-x-2">
+                            {/* <div className="flex space-x-2">
                               <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
                                 <MessageCircle className="mr-2" size={16} />
                                 Chat
@@ -313,7 +313,7 @@ export default function TradeAds() {
                                 <ArrowRightLeft className="mr-2" size={16} />
                                 Trade
                               </Button>
-                            </div>
+                            </div> */}
                           </div>
 
                           {tradeAd.title && (
