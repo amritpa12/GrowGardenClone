@@ -61,7 +61,14 @@ export const tradeAds = pgTable("trade_ads", {
   status: text("status").default("active"), // "active", "completed", "cancelled"
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  // Performance indexes for high-traffic queries
+  index("idx_trade_ads_user_id").on(table.userId),
+  index("idx_trade_ads_status").on(table.status),
+  index("idx_trade_ads_created_at").on(table.createdAt),
+  index("idx_trade_ads_user_status").on(table.userId, table.status),
+  index("idx_trade_ads_status_created").on(table.status, table.createdAt.desc()),
+]);
 
 export const chatMessages = pgTable("chat_messages", {
   id: serial("id").primaryKey(),
@@ -69,7 +76,12 @@ export const chatMessages = pgTable("chat_messages", {
   tradeAdId: integer("trade_ad_id").notNull().references(() => tradeAds.id),
   message: text("message").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  // Indexes for chat message queries
+  index("idx_chat_trade_ad_id").on(table.tradeAdId),
+  index("idx_chat_user_id").on(table.userId),
+  index("idx_chat_created_at").on(table.createdAt.desc()),
+]);
 
 export const vouches = pgTable("vouches", {
   id: serial("id").primaryKey(),

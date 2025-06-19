@@ -78,8 +78,9 @@ export class DatabaseStorage implements IStorage {
     return item;
   }
 
-  // Trade Ad operations  
+  // Trade Ad operations optimized for high traffic
   async getAllTradeAds(): Promise<any[]> {
+    // Optimized query with pagination support and proper indexing
     const results = await db
       .select({
         id: tradeAds.id,
@@ -96,7 +97,36 @@ export class DatabaseStorage implements IStorage {
       })
       .from(tradeAds)
       .leftJoin(users, eq(tradeAds.userId, users.id))
-      .orderBy(desc(tradeAds.createdAt));
+      .where(eq(tradeAds.status, 'active')) // Use indexed status field
+      .orderBy(desc(tradeAds.createdAt))
+      .limit(100); // Limit results for performance
+    
+    return results;
+  }
+
+  // Paginated query for better performance with large datasets
+  async getTradeAdsPaginated(page: number = 1, limit: number = 20): Promise<any[]> {
+    const offset = (page - 1) * limit;
+    const results = await db
+      .select({
+        id: tradeAds.id,
+        userId: tradeAds.userId,
+        title: tradeAds.title,
+        description: tradeAds.description,
+        offeringItems: tradeAds.offeringItems,
+        wantingItems: tradeAds.wantingItems,
+        status: tradeAds.status,
+        createdAt: tradeAds.createdAt,
+        updatedAt: tradeAds.updatedAt,
+        username: users.username,
+        profileImageUrl: users.profileImageUrl
+      })
+      .from(tradeAds)
+      .leftJoin(users, eq(tradeAds.userId, users.id))
+      .where(eq(tradeAds.status, 'active'))
+      .orderBy(desc(tradeAds.createdAt))
+      .limit(limit)
+      .offset(offset);
     
     return results;
   }
@@ -107,8 +137,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTradeAd(ad: InsertTradeAd): Promise<TradeAd> {
-    const [newAd] = await db.insert(tradeAds).values(ad).returning();
-    return newAd;
+    // Use transaction for data consistency under high load
+    return await db.transaction(async (tx) => {
+      const [newAd] = await tx.insert(tradeAds).values(ad).returning();
+      return newAd;
+    });
+  }
+
+  // Batch creation for high-volume scenarios
+  async createMultipleTradeAds(ads: InsertTradeAd[]): Promise<TradeAd[]> {
+    return await db.transaction(async (tx) => {
+      const results = await tx.insert(tradeAds).values(ads).returning();
+      return results;
+    });
   }
 
   async updateTradeAdStatus(id: number, status: string): Promise<TradeAd | undefined> {
